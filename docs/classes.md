@@ -5,7 +5,7 @@ C'est pas trop compliqué lorsqu'on a pratiqué du *C++* ou du *Java*. Il ne fau
 
 ## un exemple assez complet
 
-Le code se trouve dans le fichier (mal nommé) [test2.ss](test2.ss) où il sera d'ailleurs peut-être plus complet.
+Le code se trouve dans le fichier (mal nommé) [test2.ss](tst-class.rkt) où il sera d'ailleurs peut-être plus complet.
 
 ```scheme
 #lang racket
