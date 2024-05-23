@@ -1,5 +1,7 @@
 # RackettiKetta ? Relearn Racket and Scheme
 
+***Note***: c'est vraiment un WIP.
+
 ## liste des textes
 
 - [*Racket* et les classes](docs/classes.md) : comment faire et utiliser classes et objets,
