@@ -44,13 +44,13 @@
           (letrec ((i-fill
                     (lambda (i)
                       (define-values (y x) (quotient/remainder i width))
-                        (when (< i i-max)
-                          ;; alpha value already at 255
-                          ; (bytes-set! pixels i 255)
-                          (bytes-set! pixels (+ 1 i) (2b x))
-                          (bytes-set! pixels (+ 2 i) (2b y))
-                          (bytes-set! pixels (+ 3 i) (2b (quotient (+ x y) 2)))
-                          (i-fill (+ i BPPX))))))
+                      (when (< i i-max)
+                        ;; alpha value already at 255
+                        ; (bytes-set! pixels i 255)
+                        (bytes-set! pixels (+ 1 i) (2b x))
+                        (bytes-set! pixels (+ 2 i) (2b y))
+                        (bytes-set! pixels (+ 3 i) (2b (quotient (+ x y) 2)))
+                        (i-fill (+ i BPPX))))))
             (i-fill 0)
             pixels
             ))
@@ -66,7 +66,7 @@
 
     ;; -------------------------------------------------------
     [ define/private (my-paint-callback myself dc)
-      ;  (send dc set-scale 1 1)
+       ;  (send dc set-scale 1 1)
        (when bitmap
          (send dc draw-bitmap bitmap 0 0))
        ]
@@ -97,3 +97,4 @@
 
 (define app (new my-app%))
 (send app start)
+
