@@ -44,4 +44,7 @@
 
 
 (display "run, baby run!\n")
-(main (vector->list (current-command-line-arguments)))
+
+(let ((start (current-milliseconds)))
+  (main (vector->list (current-command-line-arguments)))
+  (display (format "tim: ~a ms~%" (- (current-milliseconds) start))))
