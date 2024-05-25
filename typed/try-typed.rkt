@@ -21,23 +21,7 @@
       (show-fact (+ n 1) to))))
 
 
-(define from (make-parameter  0))
-(define to   (make-parameter 18))
+(define from  0)
+(define to   18)
 
-#|
-  le défaut: impossible de se sortir du trou
-  avec la doc uniquement
-|#
-; (define (from-sht-to-int a)
-;   (let ((str (format "~a" a)))
-;     (let ((z (string->number str)))
-;       (inexact->exact z))))
-; (define (main args)
-;   (match args
-;     ['() #f]
-;     [(cons a b)
-;       (from (from-sht-to-int a))
-;       (to   (from-sht-to-int b))
-;     ]))
-
-(show-fact (from) (to))
+(show-fact from to)
