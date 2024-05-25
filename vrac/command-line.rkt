@@ -21,7 +21,7 @@
 (define (main2 args)
   (match args
     ['() #t]
-    [ (cons "1" tail) (showg 1) (main2 (cdr args))]
+    [ (cons "1"  tail) (showg 1) (main2 (cdr args))]
     [ (cons "-v" tail) (showg "-v") (main2 (cdr args))]
     [ (cons head tail) (showb head) (main2 (cdr args))]
     ))
