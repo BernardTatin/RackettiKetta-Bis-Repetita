@@ -1,41 +1,16 @@
-# `typed/racket`, bien mais un peu lourd
+# Racket et les types
 
-## il y a longtemps, déjà...
+Il y a plusieurs manières de vérifier le type des arguments d'une fonctions grâce aux nombreux paquets disponibles.
 
-Y a des jours où le gris du ciel, la fraîcheur humide d'un mauvais printemps nous démoralisent. Ces jours là, les erreurs de type bêtes et diaboliquement inextricables qui nous tombent sur la tronche peuvent pousser à la dépression. Difficile de donner un exemple simple et court de ce qui m'est arrivé à l'époque - je n'ai plus le code. C'est à ce moment que j'ai cherché comment typer mes fonctions. En fait, à l'époque j'ai opté pour *[Swindle](https://docs.racket-lang.org/swindle/index.html)* qui offre des fonctions génériques à la *Lisp*. *Swindle* m'a sorti d'affaire mais m'a posé quelques soucis d'organinsation de code et de performances.  J'aurais bien aimé avoir le `typed/racket` d'aujourd'hui.
+J'ai testé plusieurs solutions:
 
-On pourrait arguer qu'avec la programmation objet, on peut se sortir de ces situations embarrassantes. Mais je ne voulais ***pas*** de ce paradigme. Et je tiens toujours à limiter mes contacts avec ce truc.
+- `typed/racket`, *Racket* avec des types,
+- `swindle`, des fonctions génériques à la *CLOS*,
+- `plai-typed`, un drôle de *Scheme* avec un fascinant `type-case`,
+- `racket/contract`, permet de définir des contrat, ce qui peut aller au delàde tout ça.
 
-C'était *autrefois*, les ordinateurs d'aujourd'hui ont des performances qui permettent d'oublier beaucoup de détails qui nous irritaient à ce moment là ***et*** `typed/racket`s'est bien stabilisé et complété, surtout au niveau de la documentation.
+On pourrait utiliser d'autresméthodes, comme avec les classes, interfaces et autres *traits*, mais c'est pas trop mon truc.
 
-## ce qui m'agace
+## En bref
 
-La définition du type d'une fonction n'est pas régulière. Lorsqu'on défini une fonction *top-level*, on donne le type ***avant*** la fonction. Lorsqu'on utilise `letrec`, on donne le type ***après*** le nom, juste avant le `lambda`. Voici un exemple ([try.rkt](try.rkt)):
-
-```Racket
-(: fact : Integer -> Integer)
-(define (fact n)
-  (letrec ((ifact : (Integer Integer -> Integer)
-    (lambda (k acc)
-                    (if (<= k 0)
-                        acc
-                        (ifact (- k 1) (* k acc))))))
-    (ifact n 1)))
-```
-
-De manière plus générale, plutôt que `let`, `let*` et `letrec`, je trouve que `define` serait tout aussi efficace comme ici (ça marche pas):
-
-```Racket
-(: fact : Integer -> Integer)
-(define (fact n)
-  (: ifact : Integer Integer -> Integer)
-  (define ifact(k acc)
-          (if (<= k 0)
-            acc
-            (ifact (- k 1) (* k acc))))
-    (ifact n 1))
-```
-
-## pourquoi je ne l'utiliserais pas
-
-Je suis là pour le fun et le dérouillage de mes vieillissants neurones, pas pour une performance permanente style prise de tête. Ceci dit, por ceux qui ne maîtrisent pas forcément bien les types, c'est un excellent apprentissage.
+*Typed/Racket* est le plus complet mais aussi, le plus exigeant. Pour un hobby de retraité, c'est pas la meilleure option. *Swindle* a quelques défauts mais il me convient bien. *Plai Typed* est simple mais limité, il set surtout fait pour un cours intéressant à propos de l'implémentation de langages informatiques. Les *contract* sont un peu lourds mais très efficaces.
