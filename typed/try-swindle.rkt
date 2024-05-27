@@ -2,6 +2,8 @@
 
 (require swindle)
 
+;;; https://old.barzilay.org/Swindle/extra-doc.html
+
 (define str->int
     (lambda(str)
         (let ((z (string->number str)))
