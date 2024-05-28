@@ -2,6 +2,7 @@
 
 (require bitwise-ops)
 (require "libs/bits-ops.rkt")
+(require "libs/rolling-cpt.rkt")
 ;; ======================================================================
 ;; some-maths-2.ss
 ;;
