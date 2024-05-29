@@ -1,7 +1,9 @@
 # *Racket* et les classes
 
 ## en bref
-C'est pas trop compliqué lorsqu'on a pratiqué du *C++* ou du *Java*. Il ne faut pas oublier que le *this* existe, que l'accès aux champs ou méthodes peut être modifié par des *define/private* ou des *define/public*. Pour accéder à une méthode d'un objet, on lui envoie un message `(send object-name method-name parameters ...)`. Voici un exemple:
+C'est pas trop compliqué lorsqu'on a pratiqué du *C++* ou du *Java*. Il ne faut pas oublier que le *this* existe, que l'accès aux champs ou méthodes peut être modifié par des *define/private* ou des *define/public*. Pour accéder à une méthode d'un objet, on lui envoie un message `(send object-name method-name parameters ...)`.
+
+Un bon exemple se trouve dans [libs/rolling-cpt.rkt](libs/rolling-cpt.rkt).
 
 ## des détails
 
