@@ -3,11 +3,34 @@
 ## en bref
 C'est pas trop compliqué lorsqu'on a pratiqué du *C++* ou du *Java*. Il ne faut pas oublier que le *this* existe, que l'accès aux champs ou méthodes peut être modifié par des *define/private* ou des *define/public*. Pour accéder à une méthode d'un objet, on lui envoie un message `(send object-name method-name parameters ...)`. Voici un exemple:
 
+## des détails
+
+### les classes
+On défini une classe avec `class`ou `class*` (*cf.* l'exemple plus bas).
+
+### les interfaces
+Voici un exemple (*cf.* [libs/rolling-cpt.rkt](libs/rolling-cpt.rkt)):
+
+```racket
+(define i-counter<%>
+  (interface ()
+    get
+    next))
+
+(define simple-counter%
+  (class* object% (i-counter<%>)
+    (super-new)
+    ...
+  ))
+```
+
+***Note:*** : Pour utiliser les interfaces, il est bien précisé dans la documentation qu'il faut utiliser `class*` et non `class` (*cf.* [Classes and Objects](https://docs.racket-lang.org/guide/classes.html#%28part._.Interfaces%29) sur le site officiel).
+
 ## un exemple assez complet
 
-Le code se trouve dans le fichier (mal nommé) [test2.ss](tst-class.rkt) où il sera d'ailleurs peut-être plus complet.
+Dans [libs/rolling-cpt.rkt](libs/rolling-cpt.rkt), on trouvera des exemples plus complets.
 
-```scheme
+```racket
 #lang racket
 
 ;; le '%' à la fin du nom de la classe est très important
