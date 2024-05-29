@@ -3,6 +3,7 @@
 ; (require bitwise-ops)
 (require "../libs/rolling-cpt.rkt")
 (require "../libs/bits-ops.rkt")
+(require "../libs/bmp-canva.rkt")
 
 ;; ======================================================================
 ;; some-maths-2.ss
@@ -25,49 +26,46 @@
 
 
 (define my-canvas%
-  (class canvas% ; The base class is canvas%
+  (class* bmp-canvas% ()
     ;; -------------------------------------------------------
     ; Call the superclass init, passing on all init args
-    (super-new (paint-callback (lambda (c dc) (my-paint-callback c dc))))
     ;; -------------------------------------------------------
     ;; a set of fields
-    [field (bitmap #f)
-           (zmin 0)
+    [field (zmin 0)
            (zmax 0)
            (cmin 0)
            (cmax #xffffff)]
 
     (define/private get-z
       (lambda(x y)
-        (+ x y)))
-        ; y))
+        y))
 
-    (define/private create-bitmap
+    (define/override create-bitmap
       (lambda(width height)
         (set! zmin (get-z 0 0))
         (set! zmax (get-z width height))
-        (make-bitmap width height)))
+        (super create-bitmap width height)))
 
     (define/private normalize-z
       (lambda(z)
         (cond
           ((= zmin zmax) 0)
           (else
-          ;; mise à l'échelle:
-          ;;  (c - cmin)       (z - zmin)                (cmax - cmin) * (z - zmin)
-          ;; ------------- = ------------- => c - cmin = --------------------------
-          ;; (cmax - cmin)   (zmax - zmin)                       (zmax - zmin)
+           ;; mise à l'échelle:
+           ;;  (c - cmin)       (z - zmin)                (cmax - cmin) * (z - zmin)
+           ;; ------------- = ------------- => c - cmin = --------------------------
+           ;; (cmax - cmin)   (zmax - zmin)                       (zmax - zmin)
            (let ((nz (quotient
                       (* (- cmax cmin) (- z zmin))
                       (- zmax zmin))))
              (inexact->exact (+ nz cmin)))))))
 
-    (define/private fill-pixels
+    (define/override fill-pixels
       (lambda(width height)
         (let* ((i-max (* width height BPPX))
                ;; fill the bytes with 255, the alpha value
                (pixels (make-bytes i-max alpha-value))
-               (xy (new rolling-cpt-2d% [xmax0 width] [ymax0 height]))
+               (xy (new rolling-cpt-2d% [xmax width] [ymax height]))
                )
           (letrec ((i-fill
                     (lambda (i x y)
@@ -86,21 +84,9 @@
             ))
         ))
 
-      (define/override on-size
-        (lambda(width height)
-          (let ((bmp (create-bitmap width height)))
-            (let ((pixels (fill-pixels width height)))
-              (send bmp set-argb-pixels 0 0 width height pixels))
-            (set! bitmap bmp)
-            (send this refresh-now))))
 
-      ;; -------------------------------------------------------
-      [ define/private (my-paint-callback myself dc)
-         ;  (send dc set-scale 1 1)
-         (when bitmap
-           (send dc draw-bitmap bitmap 0 0))
-         ]
-      ))
+    (super-new)
+    ))
 
   (define make-new-canvas
     (lambda(frame)
