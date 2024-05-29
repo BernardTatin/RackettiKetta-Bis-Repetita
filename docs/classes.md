@@ -10,6 +10,13 @@ Un bon exemple se trouve dans [libs/rolling-cpt.rkt](libs/rolling-cpt.rkt).
 ### les classes
 On défini une classe avec `class`ou `class*` (*cf.* l'exemple plus bas).
 
+Les particularités des champs:
+- `init`, pour les valeurs passées au constructeur,
+- `init-field`, comme `init`mais en plus crée un champs du même nom,
+- `field`, des champs.
+
+Avec un peu de pratique, en général il vaut meiux utiliser `init-field` pour éviter du code pas beau
+
 ### les interfaces
 Voici un exemple (*cf.* [libs/rolling-cpt.rkt](libs/rolling-cpt.rkt)):
 
@@ -27,6 +34,9 @@ Voici un exemple (*cf.* [libs/rolling-cpt.rkt](libs/rolling-cpt.rkt)):
 ```
 
 ***Note:*** : Pour utiliser les interfaces, il est bien précisé dans la documentation qu'il faut utiliser `class*` et non `class` (*cf.* [Classes and Objects](https://docs.racket-lang.org/guide/classes.html#%28part._.Interfaces%29) sur le site officiel).
+
+## Traits, mixins et contracts...
+On peut agir d'étrange façon sur les classes pour les contraindre, les transformer, les dériver... C'est bien et beau, mais pour le moment on se contentera des interfaces et classes.
 
 ## un exemple assez complet
 

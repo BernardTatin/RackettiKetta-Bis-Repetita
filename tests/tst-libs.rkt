@@ -4,7 +4,7 @@
 
 (display "======================================================================\n")
 (display "rolling-cpt%\n")
-(define x (new rolling-cpt%  (min0 1) [max0 6]))
+(define x (new rolling-cpt%  (vmin 1) [vmax 6]))
 
 (printf "i = ~a x = ~a~%" 0 (send x get))
 (for ((i (in-range 1 15)))
@@ -12,7 +12,7 @@
 
 (display "======================================================================\n")
 (display "rolling-cpt-2d%\n")
-(define xy (new rolling-cpt-2d% (xmax0 4) (ymax0 3)))
+(define xy (new rolling-cpt-2d% (xmax 4) (ymax 3)))
 (let-values (((x y) (send xy get)))
   (printf "i = ~a x = ~a y = ~a~%" 0 x y))
 (for ((i (in-range 1 15)))

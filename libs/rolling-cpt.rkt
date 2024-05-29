@@ -1,21 +1,21 @@
 #lang racket
 
-(require racket/class)
-
+;;======================================================================
 (provide simple-counter%
          rolling-cpt%
          rolling-cpt-2d%)
 
+;;======================================================================
 (define i-counter<%>
   (interface ()
     get
     next))
 
+;;======================================================================
 (define simple-counter%
   (class* object% (i-counter<%>)
     (super-new)
-    (init-field
-     [cpt 0])
+    (init-field [cpt 0] [step 1])
 
     (define/public get
       (lambda()
@@ -23,15 +23,16 @@
 
     (define/public next
       (lambda()
-        (set! cpt (+ cpt 1))
+        (set! cpt (+ cpt step))
         cpt))))
 
+;;======================================================================
 (define rolling-cpt%
   (class* object% (i-counter<%>)
     (super-new)
-    (init (min0 0) (max0 0))
+    (init-field (vmin 0) (vmax 0))
 
-    (field (cpt min0) (min min0) (max max0))
+    (field (cpt vmin))
 
     (define/public get
       (lambda()
@@ -40,8 +41,8 @@
     (define/public next
       (lambda()
         (let ((newc (+ cpt 1)))
-          (if (>= newc max)
-              (set! cpt min)
+          (if (>= newc vmax)
+              (set! cpt vmin)
               (set! cpt newc))
           cpt)))))
 
@@ -50,11 +51,11 @@
 (define rolling-cpt-2d%
   (class* object% (i-counter<%>)
     (super-new)
-    (init (xmin0 0) (xmax0 0)
-          (ymin0 0) (ymax0 0))
+    (init-field (xmin 0) (xmax 0)
+                (ymin 0) (ymax 0))
 
-    (field (x xmin0) (xmin xmin0) (xmax xmax0)
-           (y ymin0) (ymin ymin0) (ymax ymax0))
+    (field (x xmin)
+           (y ymin))
 
 
     (define/public get-x
