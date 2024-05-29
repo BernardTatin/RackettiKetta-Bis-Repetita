@@ -34,11 +34,14 @@
     [field (bitmap #f)
            (zmin 0)
            (zmax 0)
-           ]
+           (cmin 0)
+           (cmax #xffffff)]
 
     (define/private get-z
       (lambda(x y)
         (+ x y)))
+        ; y))
+
     (define/private create-bitmap
       (lambda(width height)
         (set! zmin (get-z 0 0))
@@ -50,37 +53,44 @@
         (cond
           ((= zmin zmax) 0)
           (else
-           (let ((nz (quotient (* 255 (- z zmin)) (- zmax zmin))))
-             (inexact->exact nz))))))
+          ;; mise à l'échelle:
+          ;;  (c - cmin)       (z - zmin)                (cmax - cmin) * (z - zmin)
+          ;; ------------- = ------------- => c - cmin = --------------------------
+          ;; (cmax - cmin)   (zmax - zmin)                       (zmax - zmin)
+           (let ((nz (quotient
+                      (* (- cmax cmin) (- z zmin))
+                      (- zmax zmin))))
+             (inexact->exact (+ nz cmin)))))))
 
     (define/private fill-pixels
       (lambda(width height)
         (let* ((i-max (* width height BPPX))
                ;; fill the bytes with 255, the alpha value
                (pixels (make-bytes i-max alpha-value))
-               (cx (new rolling-cpt% [max0 width]))
-               (cy (new rolling-cpt% [max0 height]))
+               (xy (new rolling-cpt-2d% [xmax0 width] [ymax0 height]))
                )
           (letrec ((i-fill
                     (lambda (i x y)
                       (when (< i i-max)
-                        (let* ((z (normalize-z (+ x y))))
+                        (let* ((z (normalize-z (get-z x y))))
                           ;; alpha value already at 255
                           ; (bytes-set! pixels i 255)
-                          (bytes-set! pixels (+ 1 i) (2b z))
-                          (bytes-set! pixels (+ 2 i) (2b z))
-                          (bytes-set! pixels (+ 3 i) (2b (- 255 z)))
-                          (i-fill (+ i BPPX) (send cx next) (send cy next)))))))
-                   (i-fill 0 (send cx get) (send cy get))
-                   pixels
-                   ))
-          ))
+                          (bytes-set! pixels (+ 1 i) (gbits z  0 #xff))
+                          (bytes-set! pixels (+ 2 i) (gbits z  8 #xff))
+                          (bytes-set! pixels (+ 3 i) (gbits z 16 #xff))
+                          (let-values (((xx yy) (send xy next)))
+                            (i-fill (+ i BPPX) xx yy)))))))
+            (let-values (((xx yy) (send xy get)))
+              (i-fill 0 xx yy))
+            pixels
+            ))
+        ))
 
       (define/override on-size
-        (lambda(x y)
-          (let ((bmp (create-bitmap x y)))
-            (let ((pixels (fill-pixels x y)))
-              (send bmp set-argb-pixels 0 0 x y pixels))
+        (lambda(width height)
+          (let ((bmp (create-bitmap width height)))
+            (let ((pixels (fill-pixels width height)))
+              (send bmp set-argb-pixels 0 0 width height pixels))
             (set! bitmap bmp)
             (send this refresh-now))))
 
