@@ -5,7 +5,7 @@
 
 (define nloops 25000000)
 ; (define nloops 25000)
-(define chrono-loops 25)
+(define chrono-loops 3)
 
 (define chrono
   (lambda(f)
@@ -27,17 +27,15 @@
 
 (define aextreme
   (lambda(lst comp?)
-    (let ((m (car lst)))
-      (letrec ((loop
-        (lambda(acc l)
-          (cond
-            [(null? l) acc]
-            [else
-              (let ((f (car l)))
-                (if (comp? f acc)
-                  (loop f (cdr l))
-                  (loop acc (cdr l))))]))))
-          (loop m (cdr lst))))))
+    (let ((on-element
+           (lambda(e lim)
+             (cond
+               [(not lim) e]
+               [(comp? e lim) e]
+               [else lim]
+               ))))
+      (foldl on-element #f lst))))
+
 (define amax
   (lambda(lst)
     (aextreme lst >)))
@@ -50,42 +48,44 @@
 (define chrono-stats
   (lambda(name f)
     (letrec ((boucle
-      (lambda(k acc)
-        (if (= k 0)
-          acc
-          (let ((dt (chrono f)))
-            (boucle (- k 1) (cons dt acc)))))))
-        (let ((stats (boucle chrono-loops '())))
-          (printf "~a: ~a ~a ~a\n"
-            name
-            (amin stats) (avg stats chrono-loops) (amax stats))))))
+              (lambda(k acc)
+                (if (= k 0)
+                    acc
+                    (let ((dt (chrono f)))
+                      (boucle (- k 1) (cons dt acc)))))))
+      (let ((stats (boucle chrono-loops '())))
+        (printf "~a: ~a ~a ~a\n"
+                (~a name #:min-width 12)
+                (~r (amin stats) #:min-width 8)
+                (~r (avg stats chrono-loops) #:precision '(= 2) #:min-width 10)
+                (~r (amax stats) #:min-width 8))))))
 
 
-(define x (cl-count  0  1))
-(define cl-loop
-  (lambda(n)
-    (for ((i (in-range 0 n)))
-      (x))
-    (x)))
+(define-syntax make-loop
+  (syntax-rules ()
+    ((_ (name c counter in-loop) out-loop)
+     (let ((c counter))
+       (define the-loop
+         (lambda(n)
+           (for ((i (in-range 0 n)))
+             in-loop)
+           out-loop))
+       (chrono-stats name the-loop)))))
 
-(define x+ (cl-count+  0  1))
-(define cl-loop+
-  (lambda(n)
-    (for ((i (in-range 0 n)))
-      (x+ 'next))
-    (x+ 'get)))
+(make-loop ("cl-count"
+            c (cl-count 0 1) (c))
+           (c))
+(make-loop ("cl-count+"
+            c (cl-count+  0  1) (c 'next))
+           (c 'get))
 
-(define cpt (new simple-counter% [cpt 1]))
-(define r-loop
-    (lambda(n)
-    (for ((i (in-range 0 n)))
-      (send cpt next))
-    (send cpt next)))
+(make-loop ("simple-c..%"
+            c (new simple-counter% [cpt 1]) (send c next))
+           (send c next))
 
-;; on my computer:
-; cl-count: 39ms
-; roll-count: 1122ms
-
-(chrono-stats "cl-count  " cl-loop)
-(chrono-stats "roll-count" r-loop)
-(chrono-stats "cl-count+ " cl-loop+)
+(make-loop ("cl-count-c-"
+            c (cl-count-c- 0 1) (c))
+           (c))
+(make-loop ("cl-count-c++"
+            c(cl-count-c+ 0 1) (c 'next))
+           (c 'get))
