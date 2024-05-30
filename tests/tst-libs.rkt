@@ -28,9 +28,18 @@
     (printf "i = ~a cpt = ~a~%" i (send cpt next)))
 
 (display "======================================================================\n")
-(display "cl-count")
-(define x+ (cl-count  0  1))
-(define x- (cl-count 14 -1))
-(for ((i (in-range 0 15)))
-    (printf "i: ~a, cpt: ~a - ~a~%" i (x+) (x-)))
+(displayln "cl-count")
+(let ((x+ (cl-count  0  1))
+      (x- (cl-count 14 -1)))
+  (for ((i (in-range 0 15)))
+    (printf "i: ~a, cpt: ~a - ~a~%" i (x+) (x-))))
+
+
+(display "======================================================================\n")
+(displayln "cl-count+")
+(let ((x+ (cl-count+  0  1))
+      (x- (cl-count+ 14 -1)))
+  (printf "i: ~a, cpt: ~a - ~a~%" 0 (x+ 'get) (x- 'get))
+  (for ((i (in-range 1 15)))
+    (printf "i: ~a, cpt: ~a - ~a~%" i (x+ 'next) (x- 'next))))
 
