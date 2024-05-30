@@ -1,6 +1,7 @@
 #lang racket
 
 (require "../libs/rolling-cpt.rkt")
+(require "../libs/cl-counters.rkt")
 
 (display "======================================================================\n")
 (display "rolling-cpt%\n")
@@ -25,4 +26,11 @@
 (printf "i = ~a cpt = ~a~%" 0 (send cpt get))
 (for ((i (in-range 1 15)))
     (printf "i = ~a cpt = ~a~%" i (send cpt next)))
+
+(display "======================================================================\n")
+(display "cl-count")
+(define x+ (cl-count  0  1))
+(define x- (cl-count 14 -1))
+(for ((i (in-range 0 15)))
+    (printf "i: ~a, cpt: ~a - ~a~%" i (x+) (x-)))
 
