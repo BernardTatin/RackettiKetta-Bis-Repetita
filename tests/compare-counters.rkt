@@ -28,5 +28,9 @@
       (send cpt next))
     (send cpt next)))
 
+;; on my computer:
+; cl-count: 39ms
+; roll-count: 1122ms
+
 (chrono "cl-count" cl-loop)
 (chrono "roll-count" r-loop)
