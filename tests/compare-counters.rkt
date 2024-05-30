@@ -5,7 +5,7 @@
 
 (define nloops 25000000)
 ; (define nloops 25000)
-(define chrono-loops 3)
+(define chrono-loops 75)
 
 (define chrono
   (lambda(f)
@@ -36,13 +36,13 @@
                ))))
       (foldl on-element #f lst))))
 
-(define amax
-  (lambda(lst)
-    (aextreme lst >)))
-(define amin
-  (lambda(lst)
-    (aextreme lst <)))
 
+(define-syntax amin
+  (syntax-rules ()
+    ((_ lst) (aextreme lst <))))
+(define-syntax amax
+  (syntax-rules ()
+    ((_ lst) (aextreme lst >))))
 
 
 (define chrono-stats
@@ -75,13 +75,10 @@
 (make-loop ("cl-count"
             c (cl-count 0 1) (c))
            (c))
+
 (make-loop ("cl-count+"
             c (cl-count+  0  1) (c 'next))
            (c 'get))
-
-(make-loop ("simple-c..%"
-            c (new simple-counter% [cpt 1]) (send c next))
-           (send c next))
 
 (make-loop ("cl-count-c-"
             c (cl-count-c- 0 1) (c))
@@ -89,3 +86,10 @@
 (make-loop ("cl-count-c++"
             c(cl-count-c+ 0 1) (c 'next))
            (c 'get))
+
+;; presque 30 fois plus lent que les précédents
+#|
+(make-loop ("simple-c..%"
+            c (new simple-counter% [cpt 1]) (send c next))
+           (send c next))
+|#
