@@ -3,7 +3,7 @@
 ## en bref
 C'est pas trop compliqué lorsqu'on a pratiqué du *C++* ou du *Java*. Il ne faut pas oublier que le *this* existe, que l'accès aux champs ou méthodes peut être modifié par des *define/private* ou des *define/public*. Pour accéder à une méthode d'un objet, on lui envoie un message `(send object-name method-name parameters ...)`.
 
-Un bon exemple se trouve dans [libs/rolling-cpt.rkt](libs/rolling-cpt.rkt).
+Un bon exemple se trouve dans [libs/rolling-cpt.rkt](../libs/rolling-cpt.rkt).
 
 ## des détails
 
@@ -20,7 +20,7 @@ Les particularités des champs:
 Avec un peu de pratique, en général il vaut mieux utiliser `init-field` pour éviter du code pas beau
 
 ### les interfaces
-Voici un exemple (*cf.* [libs/rolling-cpt.rkt](libs/rolling-cpt.rkt)):
+Voici un exemple (*cf.* [libs/rolling-cpt.rkt](../libs/rolling-cpt.rkt)):
 
 ```racket
 (define i-counter<%>
@@ -43,7 +43,7 @@ On peut agir d'étrange façon sur les classes pour les contraindre, les transfo
 
 ## un exemple assez complet
 
-Dans [libs/rolling-cpt.rkt](libs/rolling-cpt.rkt), on trouvera des exemples plus complets.
+Dans [libs/rolling-cpt.rkt](../libs/rolling-cpt.rkt), on trouvera des exemples plus complets.
 
 ```racket
 #lang racket
