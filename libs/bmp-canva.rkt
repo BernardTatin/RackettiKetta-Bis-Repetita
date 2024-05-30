@@ -12,7 +12,8 @@
 (define bmp-canvas%
   (class* canvas% (bmp-canvas<%>)
     (field (bitmap #f))
-    (super-new (paint-callback (lambda (c dc) (my-paint-callback c dc))))
+    (super-new (paint-callback
+                (lambda (c dc) (my-paint-callback c dc))))
 
     (define/public create-bitmap
       (lambda(width height)
@@ -31,9 +32,8 @@
         (when bitmap
           (send dc draw-bitmap bitmap 0 0))))
 
-      ;; -------------------------------------------------------
-      [ define/public (my-paint-callback myself dc)
-         (send this do-paint dc)
-         ]
-    (abstract fill-pixels)
-    ))
+    ;; -------------------------------------------------------
+    ( define/public (my-paint-callback myself dc)
+       (do-paint dc))
+
+    (abstract fill-pixels)))

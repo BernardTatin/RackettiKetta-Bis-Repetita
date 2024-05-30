@@ -29,6 +29,7 @@
   (class* bmp-canvas% ()
     ;; -------------------------------------------------------
     ; Call the superclass init, passing on all init args
+    (super-new)
     ;; -------------------------------------------------------
     ;; a set of fields
     [field (zmin 0)
@@ -38,7 +39,7 @@
 
     (define/private get-z
       (lambda(x y)
-        y))
+        x))
 
     (define/override create-bitmap
       (lambda(width height)
@@ -52,9 +53,13 @@
           ((= zmin zmax) 0)
           (else
            ;; mise à l'échelle:
-           ;;  (c - cmin)       (z - zmin)                (cmax - cmin) * (z - zmin)
-           ;; ------------- = ------------- => c - cmin = --------------------------
-           ;; (cmax - cmin)   (zmax - zmin)                       (zmax - zmin)
+           ;;  (c - cmin)       (z - zmin)
+           ;; ------------- = -------------
+           ;; (cmax - cmin)   (zmax - zmin)
+           ;;
+           ;;            (cmax - cmin) * (z - zmin)
+           ;; c = cmin + --------------------------
+           ;;                   (zmax - zmin)                       (zmax - zmin)
            (let ((nz (quotient
                       (* (- cmax cmin) (- z zmin))
                       (- zmax zmin))))
@@ -80,13 +85,8 @@
                             (i-fill (+ i BPPX) xx yy)))))))
             (let-values (((xx yy) (send xy get)))
               (i-fill 0 xx yy))
-            pixels
-            ))
-        ))
-
-
-    (super-new)
-    ))
+            pixels))
+        ))))
 
   (define make-new-canvas
     (lambda(frame)
