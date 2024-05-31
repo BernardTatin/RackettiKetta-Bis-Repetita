@@ -3,7 +3,40 @@
 (provide cl-count
          cl-count+
          cl-count-c-
-         cl-count-c+)
+         cl-count-c+
+         cl-rcount
+         cl-rcount-2d)
+
+(define cl-rcount
+  (lambda(vmin vmax [step 1])
+    (let ((cpt vmin))
+      (let ((get-next
+             (lambda()
+               (let ((ocpt cpt)
+                     (ncpt (+ cpt step)))
+                  (if (< ncpt vmax)
+                    (set! cpt ncpt)
+                    (set! cpt vmin))
+                 ocpt))))
+        get-next))))
+
+(define cl-rcount-2d
+  (lambda(xmin xmax ymin ymax [step 1])
+    (let ((x xmin)
+          (y ymin))
+      (let ((get-next
+             (lambda()
+               (let ((ox x)
+                     (oy y)
+                     (nx (+ x step)))
+                 (if (< nx xmax)
+                     (set! x nx)
+                     (begin
+                       (set! x xmin)
+                       ;;; must test ymax...
+                       (set! y (+ step y))))
+                     (values ox oy)))))
+            get-next))))
 
 (define cl-count
   (lambda(from [step 1])

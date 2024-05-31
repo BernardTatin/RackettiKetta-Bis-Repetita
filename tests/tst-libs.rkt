@@ -43,3 +43,18 @@
   (for ((i (in-range 1 15)))
     (printf "i: ~a, cpt: ~a - ~a~%" i (x+ 'next) (x- 'next))))
 
+
+(display "======================================================================\n")
+(displayln "cl-rcount")
+(let ((x+ (cl-rcount  0 4 1)))
+  (for ((i (in-range 1 15)))
+    (printf "i: ~a, cpt: ~a~%" i (x+))))
+
+
+(display "======================================================================\n")
+(displayln "cl-rcount-2d")
+(let ((x+ (cl-rcount-2d  0 4 0 4 1)))
+  (for ((i (in-range 1 15)))
+    (let-values (((x y) (x+)))
+      (printf "i: ~a, cpt: ~a, ~a~%" i x y))))
+
