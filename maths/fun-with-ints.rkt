@@ -39,12 +39,14 @@
 
     (define/private get-z
       (lambda(x y)
-        y))
+        x))
 
     (define/override create-bitmap
       (lambda(width height)
         (set! zmin (get-z 0 0))
         (set! zmax (get-z width height))
+        (set! zmin (- 1 width))
+        (set! zmax (- width 1))
         (super create-bitmap width height)))
 
     (define/private normalize-z
@@ -73,9 +75,19 @@
                (xy (cl-rcount-2d 0 width 0 height))
                )
           (letrec ((i-fill
+                    ;; x and y are inverted ??????
                     (lambda (i x y)
                       (when (< i i-max)
-                        (let* ((z (normalize-z (get-z x y))))
+                        (let* ( (k  (inexact->exact (quotient  i BPPX)))
+                                (xi (inexact->exact (quotient  k width)))
+                                (yi (inexact->exact (remainder k width)))
+                                (z0 y)
+                                (z (normalize-z z0))
+                                (zi (cond
+                                      [ (< z -1) #x0000ff ]
+                                      [ (= z  0) #x000000 ]
+                                      [ (> z  1) #xff0000 ]
+                                      [ else      #x00ff00 ])))
                           ;; alpha value already at 255
                           ; (bytes-set! pixels i 255)
                           (bytes-set! pixels (+ 1 i) (gbits z  0 #xff))
@@ -88,30 +100,30 @@
             pixels))
         ))))
 
-  (define make-new-canvas
-    (lambda(frame)
-      (let ((the-canva (new my-canvas% [parent frame])))
-        the-canva)))
+    (define make-new-canvas
+      (lambda(frame)
+        (let ((the-canva (new my-canvas% [parent frame])))
+          the-canva)))
 
-  (define my-frame%
-    [class frame%
-      ;; super-new must be called here if we want to use the this keyword
-      ;; in the fields definition
-      (super-new)
-      (field (canva (make-new-canvas this)))])
+    (define my-frame%
+      [class frame%
+        ;; super-new must be called here if we want to use the this keyword
+        ;; in the fields definition
+        (super-new)
+        (field (canva (make-new-canvas this)))])
 
 
-  (define my-app%
-    (class object%
-      (super-new)
-      (field (frame  (new my-frame% [label frame-title]
-                          (width frame-w) (height frame-h))))
+    (define my-app%
+      (class object%
+        (super-new)
+        (field (frame  (new my-frame% [label frame-title]
+                            (width frame-w) (height frame-h))))
 
-      (define/public start
-        (lambda()
-          (send frame show #t)))))
+        (define/public start
+          (lambda()
+            (send frame show #t)))))
 
-  (define app (new my-app%))
-  (send app start)
+    (define app (new my-app%))
+    (send app start)
 
 
