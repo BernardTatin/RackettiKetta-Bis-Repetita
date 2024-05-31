@@ -54,7 +54,7 @@
 (display "======================================================================\n")
 (displayln "cl-rcount-2d")
 (let ((x+ (cl-rcount-2d  0 4 0 4 1)))
-  (for ((i (in-range 1 15)))
+  (for ((i (in-range 1 25)))
     (let-values (((x y) (x+)))
       (printf "i: ~a, cpt: ~a, ~a~%" i x y))))
 

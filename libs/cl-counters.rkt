@@ -33,8 +33,11 @@
                      (set! x nx)
                      (begin
                        (set! x xmin)
-                       ;;; must test ymax...
-                       (set! y (+ step y))))
+                       (let ((ny (+ y step)))
+                        (if (< ny ymax)
+                          (set! y ny)
+                          (set! y ymin)))
+                       ))
                      (values ox oy)))))
             get-next))))
 
