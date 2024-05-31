@@ -15,9 +15,9 @@
     ((_ pred b1 ...)
      (if pred (begin b1 ...) #f))))
 
-(when (> x 0)
+(when+ (> x 0)
     (printf "~a > 0\n" x))
-(when (= x 0)
+(when+ (= x 0)
     (printf "~a = 0\n" x))
 
 (define-syntax for+
@@ -28,7 +28,7 @@
 	  b1 ...
 	  (loop (+ 1 i)))))))
 
-(for+ (i 0 10)
-  (display i)
+(for+ (k 0 10)
+  (display k)
   (display #\Space))
 (display "\n")

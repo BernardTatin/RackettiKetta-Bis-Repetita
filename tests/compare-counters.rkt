@@ -4,7 +4,6 @@
 (require "../libs/cl-counters.rkt")
 
 (define nloops 25000000)
-; (define nloops 25000)
 (define chrono-loops 75)
 
 (define chrono
@@ -83,6 +82,7 @@
 (make-loop ("cl-count-c-"
             c (cl-count-c- 0 1) (c))
            (c))
+
 (make-loop ("cl-count-c++"
             c(cl-count-c+ 0 1) (c 'next))
            (c 'get))
