@@ -1,12 +1,12 @@
 #lang racket/gui
 
 ; (require bitwise-ops)
-(require "../libs/rolling-cpt.rkt")
+(require "../libs/cl-counters.rkt")
 (require "../libs/bits-ops.rkt")
 (require "../libs/bmp-canva.rkt")
 
 ;; ======================================================================
-;; some-maths-2.ss
+;; fun-with-maths.rkt
 ;;
 ;; GRacket.exe -t .\some-maths-1.ss
 ;;
@@ -14,7 +14,7 @@
 ;;
 ;; simple maths graphs
 ;; we know how to fill and show a bitmap,
-;; now we will try some more mathematical things
+;; there is a bug, but it's funny
 ;; ======================================================================
 
 (define frame-w 800)
@@ -39,7 +39,7 @@
 
     (define/private get-z
       (lambda(x y)
-        x))
+        y))
 
     (define/override create-bitmap
       (lambda(width height)
@@ -70,7 +70,7 @@
         (let* ((i-max (* width height BPPX))
                ;; fill the bytes with 255, the alpha value
                (pixels (make-bytes i-max alpha-value))
-               (xy (new rolling-cpt-2d% [xmax width] [ymax height]))
+               (xy (cl-rcount-2d 0 width 0 height))
                )
           (letrec ((i-fill
                     (lambda (i x y)
@@ -81,9 +81,9 @@
                           (bytes-set! pixels (+ 1 i) (gbits z  0 #xff))
                           (bytes-set! pixels (+ 2 i) (gbits z  8 #xff))
                           (bytes-set! pixels (+ 3 i) (gbits z 16 #xff))
-                          (let-values (((xx yy) (send xy next)))
+                          (let-values (((xx yy) (xy)))
                             (i-fill (+ i BPPX) xx yy)))))))
-            (let-values (((xx yy) (send xy get)))
+            (let-values (((xx yy) (xy)))
               (i-fill 0 xx yy))
             pixels))
         ))))
