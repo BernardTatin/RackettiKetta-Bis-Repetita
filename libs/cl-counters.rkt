@@ -1,11 +1,22 @@
 #lang racket
 
-(provide cl-count
+(provide cl-count-noset
+         cl-count
          cl-count+
          cl-count-c-
          cl-count-c+
          cl-rcount
          cl-rcount-2d)
+
+
+(define (cl-count-noset start step)
+   (lambda ()
+      (letrec ((next
+                (lambda (current)
+                  (lambda ()
+                    (let ((result current))
+                      (values result (next (+ current step))))))))
+        (next start))))
 
 (define cl-rcount
   (lambda(vmin vmax [step 1])

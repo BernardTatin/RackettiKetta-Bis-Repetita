@@ -58,3 +58,15 @@
     (let-values (((x y) (x+)))
       (printf "i: ~a, cpt: ~a, ~a~%" i x y))))
 
+(display "======================================================================\n")
+(displayln "cl-count-noset")
+(define my-counter (cl-count-noset 0 2)) ; Crée un compteur qui commence à 0 et incrémente de 2
+
+ (let loop ((next-count (my-counter)))
+    (call-with-values next-count
+      (lambda (current next)
+        (when (< current 10)
+            (begin
+              (display current)
+              (newline)
+              (loop next))))))
