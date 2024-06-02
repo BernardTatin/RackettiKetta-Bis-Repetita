@@ -47,3 +47,4 @@ J'ai fait plusieurs compteurs calquant le fonctionnement de ceux de [rolling-cpt
 ## les performances
 
 C'est ouachtement plus rapide que les compteurs avec les classes! Sur mon PC, avec les classes, on est de l'ordre de 1100 ms contre 40 pour les fermetures.
+
