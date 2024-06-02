@@ -1,41 +1,43 @@
 # Les fermetures et les compteurs
 
+On trouve de bonnes explications ici:
+- [Fermeture (informatique)](https://fr.wikipedia.org/wiki/Fermeture_(informatique))
+- [An Introduction to Scheme and its Implementation - Understanding lambda](https://www.cs.utexas.edu/ftp/garbage/cs345/schintro-v13/schintro_122.html)
+
+Les langages fonctionels proposent tous - ou presque - la posibilité de créer des fonctions qui retournent une autre fonction, définie à l'intérieur de la précédente. De cette manière, la fonction retournée profite de l'environnement crée autour de sa définition.
+
+Voici un exemple simple de compteur:
+
+```racket
+(define cl-count
+  (lambda(from [step 1])
+    (let ((cpt from))
+      (let ((get-next
+             (lambda()
+               (let ((ocpt cpt))
+                 (set! cpt (+ cpt step))
+                 ocpt))))
+        get-next))))
+```
+
+L'environnement, ici, est l'ensemble des variables `from`, `step`, et `cpt`. On peut créer autant de compteurs indépendants les uns des autres de cette manière:
+
+```racket
+(define cpt+ (cl-count 0  2))
+(define cpt- (cl-count 0 -2))
+
+(printf "-> cpt+ ~a cpt- ~a\n" (cpt+) (cpt-))
+(printf "-> cpt+ ~a cpt- ~a\n" (cpt+) (cpt-))
+(printf "-> cpt+ ~a cpt- ~a\n" (cpt+) (cpt-))
+```
+
+On obtient ces trois lignes:
+
+```racket
+-> cpt+ 0 cpt- 0
+-> cpt+ 2 cpt- -2
+-> cpt+ 4 cpt- -4
+```
+
+
 J'ai fait plusieurs compteurs calquant le fonctionnement de ceux de [rolling-cpt.rkt](../libs/rolling-cpt.rkt) mais avec des fermetures dans [cl-counters.rkt](../libs/cl-counters.rkt].
-
-## Un peu d'*IA* dans mon code
-L'un d'entre eux, `cl-count-noset` ne modifie pas de variables, comme les autres. Comme je n'y arrivait pas, j'ai demandé à *Copilot Microsoft* de m'aider. La première version qu'il me donne est la suivante:
-
-```Racket
- (define (cl-count-noset start step)
-    (letrec ((next
-              (lambda (current)
-                (lambda ()
-                  (let ((result current))
-                    (cons result (next (+ current step))))))))
-      (next start)))
-```
-
-Le test fourni est le suivant :
-
-```Racket
-(define my-counter (cl-count-noset 0 2))
-(define counter-state (my-counter)) ; Initialise le compteur
-(let loop ((state counter-state))
-    (if (< (car state) 10) ; Vérifie si le compteur est inférieur à 10
-        (begin
-          (display (car state)) ; Affiche la valeur actuelle du compteur
-          (newline)
-          (loop (cdr state))))) ; Passe au prochain état
-```
-Le résultat, avec *Racket* comme avec *ChezScheme* est décevant:
-```
-0
-Exception in car: #<procedure> is not a pair
-Type (debug) to enter the debugger.
-```
-
-Je rappelle *Copilot Microsoft* et là, j'ai le bon `cl-count-noset`, celui que j'ai inclu dans ma `libs`.
-
-### conclusion à relire régulièrement
-
-Il faut donc de la prudence, du test et de la patience lorsqu'on utilise l'IA actuelle. D'un autre côté, cela m'a pris assez peu de temps.
