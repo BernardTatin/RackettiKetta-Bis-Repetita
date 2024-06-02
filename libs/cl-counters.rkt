@@ -1,6 +1,7 @@
 #lang racket
 
 (provide cl-count-noset
+         with-noset-count
          cl-count
          cl-count+
          cl-count-c-
@@ -10,13 +11,24 @@
 
 
 (define (cl-count-noset start step)
-   (lambda ()
-      (letrec ((next
-                (lambda (current)
-                  (lambda ()
-                    (let ((result current))
-                      (values result (next (+ current step))))))))
-        (next start))))
+  (lambda ()
+    (letrec ((next
+              (lambda (current)
+                (lambda ()
+                  (let ((result current))
+                    (values result (next (+ current step))))))))
+      (next start))))
+
+(define-syntax with-noset-count
+  (syntax-rules ()
+    ((_ (cpt stop-condition) thunk)
+     (let iloop ((next-count (cpt)))
+       (call-with-values next-count
+                         (lambda (current next)
+                           (when (stop-condition current)
+                             (thunk current)
+                             (iloop next))))))))
+
 
 (define cl-rcount
   (lambda(vmin vmax [step 1])
@@ -25,9 +37,9 @@
              (lambda()
                (let ((ocpt cpt)
                      (ncpt (+ cpt step)))
-                  (if (< ncpt vmax)
-                    (set! cpt ncpt)
-                    (set! cpt vmin))
+                 (if (< ncpt vmax)
+                     (set! cpt ncpt)
+                     (set! cpt vmin))
                  ocpt))))
         get-next))))
 
@@ -45,12 +57,12 @@
                      (begin
                        (set! x xmin)
                        (let ((ny (+ y step)))
-                        (if (< ny ymax)
-                          (set! y ny)
-                          (set! y ymin)))
+                         (if (< ny ymax)
+                             (set! y ny)
+                             (set! y ymin)))
                        ))
-                     (values ox oy)))))
-            get-next))))
+                 (values ox oy)))))
+        get-next))))
 
 (define cl-count
   (lambda(from [step 1])
@@ -76,6 +88,7 @@
 
 (define/contract (cl-count-c- from [step 1])
   (-> integer? integer? any/c)
+  ; très long (~780 ms au lieu de ~40ms)
   ; (-> integer? integer? (-> integer?))
   (let ((cpt from))
     (let ((get-next
@@ -86,7 +99,7 @@
       get-next)))
 
 (define/contract (cl-count-c+ from [step 1])
-  ; très long (~780 ms)
+  ; très long (~780 ms au lieu de ~40ms)
   ; (-> integer? integer? (-> symbol? integer?))
   ;; très rapide (~45ms), cl-count+
   (-> integer? integer? any/c)

@@ -93,3 +93,11 @@
             c (new simple-counter% [cpt 1]) (send c next))
            (send c next))
 |#
+
+(for ((i (in-range 0 8)))
+  (let ((now (current-milliseconds)))
+    (with-noset-count ((cl-count-noset 0 1)
+                       (lambda (current) (< current nloops)))
+      (lambda(current) current))
+    (printf "loop ~a -> ~ams\n" i (- (current-milliseconds) now))))
+
