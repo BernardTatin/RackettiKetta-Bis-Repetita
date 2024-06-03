@@ -1,5 +1,7 @@
 #lang racket
 
+(require math/statistics)
+
 (provide with-timing
          with-stats-timing
          stats->string
@@ -53,8 +55,10 @@
 
 (define stats->string
   (lambda(stats [min-width 6])
-    (format "~a ~a ~a"
+    (format "~a ~a ~a [~a ~a]"
             (~r (amin stats)                #:precision '(= 2) #:min-width min-width)
             (~r (avg stats (length stats))  #:precision '(= 2) #:min-width min-width)
             (~r (amax stats)                #:precision '(= 2) #:min-width min-width)
+            (~r (quantile 0.1 < stats)      #:precision '(= 2) #:min-width min-width)
+            (~r (quantile 0.9 < stats)      #:precision '(= 2) #:min-width min-width)
             )))
