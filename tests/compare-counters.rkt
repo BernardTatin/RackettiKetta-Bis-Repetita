@@ -4,7 +4,7 @@
 (require plot)
 (require plot/utils)
 
-(require "../libs/rolling-cpt.rkt")
+; (require "../libs/rolling-cpt.rkt")
 (require "../libs/cl-counters.rkt")
 (require "../libs/timing.rkt")
 
@@ -27,7 +27,8 @@
             (y.1 (quantile 0.1 < stats))
             (y.9 (quantile 0.9 < stats))
             (l-stats (length stats))
-            (xs (range 0 l-stats)))
+            (xs (range 0 l-stats))
+            (vstats (map vector xs stats)))
       (plot-new-window? #t)
       (plot-title name)
       (parameterize ([plot-width    550]
@@ -35,40 +36,78 @@
                      [plot-x-label  name]
                      [plot-y-label  "milliseconds"])
         (plot (list
-               (lines-interval ; (map vector (list 0 l-stats) (list y.1 y.9))
-                ; '(#(0 0.312255859375) #(1349 0.339111328125))
-                              (list (vector 0 y.1) (vector (- l-stats 1) y.1))
-                              (list (vector 0 y.9) (vector (- l-stats 1) y.9))
+               (lines-interval (list (vector 0 y.1) (vector (- l-stats 1) y.1))
+                               (list (vector 0 y.9) (vector (- l-stats 1) y.9))
                                #:color (->pen-color 4)
-                              ;  #:line1-color (->pen-color 4) #:line2-color (->pen-color 4)
+                               ;  #:line1-color (->pen-color 4) #:line2-color (->pen-color 4)
                                #:label #f)
-               (lines (map vector xs stats)
+               (lines vstats
                       #:marker 'fullcircle1
                       #:color "blue"
                       #:width 2
                       #:x-min 0 #:x-max (+ 1 (length stats))
-                      #:y-min 0 #:y-max ymax)))))
-  ))
+                      #:y-min 0 #:y-max ymax))))
+      (values ymax name vstats)
+      )))
 
 (define-syntax do-test
   (syntax-rules ()
     ((_ (name) body ...)
-      (let ((stats (with-stats-timing (chrono-loops)
-            (for ((i (in-range 0 nloops)))
-              body ...))))
-            (plot-stats name stats)
-            (printf "~a : ~a\n" (~a name #:min-width 11)
-              (stats->string stats))))))
+     (let ((stats (with-stats-timing (chrono-loops)
+                    (for ((i (in-range 0 nloops)))
+                      body ...))))
+       (printf "~a : ~a\n" (~a name #:min-width 11)
+               (stats->string stats))
+       (plot-stats name stats)
+       ))))
 
-(let ((cpt (cl-count 0 1)))
-  (do-test ("cl-count") (cpt)))
+(let  ((l-colors '("blue" "red" "green"))
+       (all-stats '())
+       (all-names '())
+       (ymax 0))
 
-(let ((cpt (cl-count+ 0 1)))
-  (do-test ("cl-count+") (cpt 'next)))
+  ;; a define-syntax would bz a good idea
+  (let ((cpt (cl-count 0 1)))
+    (let-values (((ym name lst) (do-test ("cl-count") (cpt))))
+      (set! ymax (max ym ymax))
+      (set! all-names (cons name all-names))
+      (set! all-stats (cons lst  all-stats))))
 
-(let ((cpt (cl-rcount-2d 0 800 0 640)))
-  (do-test ("cl-count-2d") (cpt)))
+  (let ((cpt (cl-count+ 0 1)))
+    (let-values (((ym name lst) (do-test ("cl-count+") (cpt 'next))))
+      (set! ymax (max ym ymax))
+      (set! all-names (cons name all-names))
+      (set! all-stats (cons lst  all-stats))))
 
+  (let ((cpt (cl-rcount-2d 0 800 0 640)))
+    (let-values (((ym name lst) (do-test ("cl-count-2d") (cpt))))
+      (set! ymax (max ym ymax))
+      (set! all-names (cons name all-names))
+      (set! all-stats (cons lst  all-stats))))
+
+  (plot-new-window? #t)
+  (plot-title "All stats")
+
+
+  (define lines-maker-map
+    (lambda(lst)
+      (map (lambda(e color name)
+             (lines e
+                    #:marker 'fullcircle1
+                    #:color color
+                    #:width 2
+                    #:label name
+                    #:x-min 0 #:x-max (+ 1 (length e))
+                    #:y-min 0 #:y-max ymax))
+           lst l-colors all-names
+           )))
+
+  (parameterize ([plot-width    550]
+                 [plot-height   550]
+                 [plot-y-label  "milliseconds"])
+
+    (plot (lines-maker-map all-stats)))
+  )
 
 ; (make-loop ("cl-count-c-"
 ;             c (cl-count-c- 0 1) (c))
