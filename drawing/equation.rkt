@@ -17,15 +17,16 @@ Currently, pixel operations are very slow.
 (define val-ok? #f)
 
 (define hsb-min    0)
-(define hsb-max  255)
+(define hsb-max  512)
 
-(define xl -2.0)
-(define xh  2.0)
-(define yl -2.0)
-(define yh  2.0)
+(define xl -1.0)
+(define xh  1.0)
+(define yl -1.0)
+(define yh  1.0)
 
 (define scf-x (get-scale-factor (0 def-width  xl xh)))
 (define scf-y (get-scale-factor (0 def-height yl yh)))
+(define scf-h #f)
 
 (define (on-resize width height)
     (:= val-ok? #f)
@@ -49,7 +50,6 @@ Currently, pixel operations are very slow.
     (syntax-rules ()
         ((_ (yg))
             (scale-value (yg 0 yl scf-y)))))
-            ; (scale-value (yg 0 height yl yh)))))
 
 (define-syntax scale-x
     (syntax-rules ()
@@ -57,9 +57,11 @@ Currently, pixel operations are very slow.
             (scale-value (xg 0 xl scf-x)))))
 
 (define-syntax scale-color
-    (syntax-rules ()
-        ((_ (val))
-            (scale-value (val val-min val-max hsb-min hsb-max)))))
+  (syntax-rules ()
+    ((_ (val))
+     (if scf-h
+         (scale-value (val val-min hsb-min scf-h))
+         (scale-value (val val-min val-max hsb-min hsb-max))))))
 
 (define compute-color
   (lambda (val)
@@ -67,8 +69,6 @@ Currently, pixel operations are very slow.
         (scale-color (val))
         (cond
           [(or (not val-max) (= val-max val-min)) hsb-min]
-        ;   [(< val val-min) hsb-min]
-        ;   [(> val val-max) hsb-max]
           [else
            (scale-color (val))]))))
 
@@ -81,19 +81,14 @@ Currently, pixel operations are very slow.
     lemniscate
 |#
 (define (equation x y)
-  (let* ((x2 (* x x))
-         (y2 (* y y))
-         (s2 (+ x2 y2))
-         (a 0.5)
-         (val0 (+ (* x2 x2) (- x2) y2))
-         (val1 (- (* s2 s2) (* a (- x2 y2))))
-         (val2 (+ (* x y) (- x2 y2)))
-         (val val2))
-    ; (printf "~a ~a -> ~a~%"
-    ;     (~r   x #:precision '(= 2) #:min-width 8)
-    ;     (~r   y #:precision '(= 2) #:min-width 8)
-    ;     (~r val #:precision '(= 2) #:min-width 8)
-    ; )
+  (let (
+        ;  (x2 (* x x))
+        ;  (y2 (* y y))
+        ;  (s2 (+ x2 y2))
+        ;  (a 0.5)
+        ;  (val0 (- (* x (+ x2 x2)) (* a (- (* 3 x2) y2))))
+        ;  (val1 (- (* s2 s2) (* a (- x2 y2))))
+        (val (* x y)))
     (if val-ok?
         val
         (cond
@@ -103,18 +98,49 @@ Currently, pixel operations are very slow.
           (else val)))))
 
 
+;; 420/425 ms shb-max =  256
+;; 775/790 ms shb-max = 2560
+(define (draw0)
+  (with-pixels ()
+      (let ((now (current-milliseconds))
+            (dt 0))
+        (when (not val-ok?)
+          (for ([i width])
+            (for ([j height])
+              (let* ((col0 i)
+                     (col (min col0 hsb-max)))
+                (set-pixel i j (color col col col)))))
+          (:= val-ok? #t))
+        (:= dt (- (current-milliseconds) now))
+        (display-all (list "temps " dt "ms")))))
+
+;; 500/510 ms -> hsb-max  256
+;; 520/530 ms -> hsb-max 2560
 (define (draw)
-  (load-pixels)
-  (for ([i width])
-    (for ([j height])
-      (let* ([val   (equation (scale-x (i)) (scale-y (j)))]
-             [col (compute-color val)])
-        (set-pixel i j (color col col col)))))
+  (let ((now (current-milliseconds))
+        (dt 0))
+    (with-pixels ()
+      (when (not val-ok?)
+        (let* ((dx (/ (- xh xl) width))
+               (dy (/ (- yh yl) height))
+               (x xl)
+               (y yl))
+          (for ([i width])
+            (:= y yl)
+            (for ([j height])
+              (let ([col (- hsb-max (compute-color (equation x y)))])
+                (set-pixel i j (color col col col))
+                (:= y (+ y dy))))
+            (:= x (+ x dx))
+            ))))
+
+    (:= dt (- (current-milliseconds) now))
+    (display-all (list "temps " dt "ms")))
   (when (not val-ok?)
     (disp-extrems)
     (display-all (list "max -> " (scale-color (val-max))
                        " or " (- hsb-max hsb-min)))
-    (:= val-ok? #t))
-  (update-pixels))
+    (:= scf-h (get-scale-factor (val-min val-max hsb-min hsb-max)))
+    (:= val-ok? #t)))
 
 
