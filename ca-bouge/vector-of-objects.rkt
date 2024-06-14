@@ -10,7 +10,7 @@
 
 
 
-(define bl-colors (vector-immutable "White" "Yellow" "Red" "Green" "Blue"))
+(define bl-colors (vector-immutable "Wheat" "Yellow" "#ff3030" "Green" "#1e90ff"))
 (define bl-colors-len (vector*-length bl-colors))
 (define get-rand-color
   (lambda ()
@@ -32,10 +32,10 @@
               [y-offset 0]
               [x        0]
               [y        0]
-              [unit     1]
               [x-dir    1]
               [y-dir    1]
-              [speed    1]
+              [speed    (random 0.5 1.0)]
+              [unit     (random 0.8 1.6)]
               [bl-color (get-rand-color)])
   (super-new)    ; super class initialization
 
@@ -63,27 +63,31 @@
 (define create-blobs
   (lambda(width height)
     (:= blobs (for*/vector  ; for* is a nested loop
-                           ([x (inexact->exact (floor (/ width  unit)))]
-                            [y (inexact->exact (floor (/ height unit)))])
+                           ([x (number->int (/ width  unit))]
+                            [y (number->int (/ height unit))])
                          (new Blob
                               [x-offset (* x   unit)]
                               [y-offset (* y   unit)]
-                              [x        (inexact->exact (* 1/2 unit))]
-                              [y        (inexact->exact (* 1/2 unit))]
-                              [speed    (random 0.5 1.0)]
-                              [unit     (random 0.8 1.6)])))))
+                              [x        (* 1/2 unit)]
+                              [y        (* 1/2 unit)]
+                              )))))
 
 (define (setup)
-  (size 643 367)
-  (frame-rate 60)
+  (size 640 800)
+  ;; 60 fps: 1.0 processeur, mouvement très fluides
+  ;; 30 fps: 0.6 processeur, mouvements légèrement saccadés
+  ;; =========== c'est quand même mieux que l'Amstrad CPC 64
+  (frame-rate 30)
   (no-stroke)
+  ; (color-mode 'hsb)
   (create-blobs width height))
 
 (define (on-resize width height)
     (create-blobs width height))
 
 (define (draw)
-  (background 0)
+  (background "#404040")
   (for ([blob blobs])
-    (blob.update)
+    (blob.update))
+  (for ([blob blobs])
     (blob.draw)))
