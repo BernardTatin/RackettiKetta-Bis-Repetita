@@ -1,5 +1,7 @@
 #lang racket
 
+;; https://www.shido.info/lisp/scheme_lazy_e.html
+
 (provide lazy-car
             lazy-cons
             lazy-cdr
