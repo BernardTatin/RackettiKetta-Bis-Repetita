@@ -2,10 +2,27 @@
 
 (require sketching)
 
-(provide with-pixels
+(provide display-all
+         random-integer
+         number->int
+         with-pixels
          get-scale-factor
          def-scale-factor
          scale-value)
+
+(define (display-all . lst)
+    (for-each (lambda(e)
+        (display e))
+            lst))
+
+(define-syntax number->int
+  (syntax-rules ()
+    ((_ x) (inexact->exact (floor x)))))
+
+(define-syntax random-integer
+    (syntax-rules ()
+        ((_ max-value) (number->int (random max-value)))))
+
 #|
     Some macros to help drawing
 |#
