@@ -1,6 +1,8 @@
 #lang racket
 
 (require math/statistics)
+(require plot)
+(require plot/utils)
 
 #|
     from "Simulations numériques du mouvement brownien confiné"
@@ -59,28 +61,73 @@
         ((_ x prec mwidth)
             (~a (~r x #:precision '(= prec)) #:width mwidth #:align 'right))))
 
+(define get-10th
+    (lambda(samples [delta 0.1])
+        (let ((N (inexact->exact (floor (/ 1.0 delta)))))
+            (for*/vector ([k (+ 1 N)])
+                (quantile (min (* k delta) 1.0) < samples)))))
 
+(define print-10th
+  (lambda(samples [delta 0.1])
+    (let ((q (get-10th samples delta)))
+      (printf "Quantiles delta ~a ~%" (fmt-n delta 3 6))
+      (letrec ((iloop
+                (lambda(p k)
+                  (when (<= p 1.0)
+                    (printf "-> ~a : ~a~%"
+                            (fmt-n p 3 6)
+                            (fmt-n (vector-ref q k) 2 8))
+                    (iloop (+ p delta) (+ k 1))))))
+            (iloop 0 0)
+            q))))
+
+(define count-q
+  (lambda(samples q)
+    (foldl (lambda(v acc)
+             (if (< v q)
+                 (+ acc 1)
+                 acc))
+             0 samples)))
+
+(define plot-q
+    (lambda(samples q [delta 0.1])
+        (letrec ((iloop
+            (lambda(p k acc)
+                (cond
+                    [(> p 1) (reverse acc)]
+                    [else (iloop (+ p delta) (+ k 1)
+                            (cons (vector (count-q samples (vector-ref q k)) (min p 1.0)) acc))]))))
+                            ; (cons (vector (vector-ref q k) (min p 1.0)) acc))]))))
+            (plot (discrete-histogram (iloop 0 0 '()) )))))
+
+
+    ;; (plot (discrete-histogram (list #(A 1) #(B 2) #(B 3) ...
 (define stats-of-rand
-    (lambda(name rand-f N)
-        (let* ((samples (vector-of-random rand-f N))
-                (median (median < samples))
-                (avg (mean samples))
-                (dev (stddev samples))
-                (min (quantile 0 < samples))
-                (max (quantile 1 < samples)))
-            (printf "~a: [~a, ~a] med, avg: ~a, ~a dev~a~%"
-                (~a name        #:width 20)
-                ;; (~a (~r (- pi) #:precision 2) #:min-width 10 #:align 'right)
-                (fmt-n min         2 6)
-                (fmt-n max         2 6)
-                (fmt-n median      2 6)
-                (fmt-n avg         2 6)
-                (fmt-n dev         2 6)))))
+  (lambda(name rand-f N)
+    (let* ((samples (vector-of-random rand-f N))
+           (delta 0.1)
+           (median (median < samples))
+           (avg (mean samples))
+           (dev (stddev samples))
+           (min (quantile 0 < samples))
+           (max (quantile 1 < samples)))
+      (printf "~a: [~a, ~a] med, avg: ~a, ~a dev~a~%"
+              (~a name        #:width 20)
+              ;; (~a (~r (- pi) #:precision 2) #:min-width 10 #:align 'right)
+              (fmt-n min         2 6)
+              (fmt-n max         2 6)
+              (fmt-n median      2 6)
+              (fmt-n avg         2 6)
+              (fmt-n dev         2 6))
+      (let ((q (print-10th samples delta)))
+        (plot-new-window? #t)
+        (plot-title name)
+        (plot-q (vector->list samples) q delta)))))
 
 
 
-
-(stats-of-rand "multi-rand"         multi-rand      500)
-(stats-of-rand "box-muller-rand"    box-muller-rand 500)
-(stats-of-rand "Marsaglia-rand"     Marsaglia-rand  500)
-
+(let ((N 15000))
+  (stats-of-rand "multi-rand"         multi-rand      N)
+  (stats-of-rand "box-muller-rand"    box-muller-rand N)
+  (stats-of-rand "Marsaglia-rand"     Marsaglia-rand  N)
+)
