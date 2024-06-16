@@ -10,6 +10,12 @@
 |#
 (require racket/math)
 
+(define-syntax fmt-n
+    (syntax-rules ()
+        ((_ x prec mwidth)
+            (~a (~r x #:precision '(= prec)) #:width mwidth #:align 'right))))
+
+
 (define pythagore-2
   (lambda(x y)
     (+ (* x x) (* y y))))
@@ -17,6 +23,14 @@
 (define pythagore
   (lambda(x y)
     (sqrt (pythagore-2 x y))))
+
+(define proj-X
+  (lambda (X Y)
+    X))
+
+(define proj-Y
+  (lambda (X Y)
+    Y))
 
 ;; values in [-4.0, 4.0]
 (define box-muller-rand
@@ -51,15 +65,10 @@
     (values (random) (random))))
 
 (define vector-of-random
-  (lambda(rand-gen N)
-    (for*/vector ([k N])
+  (lambda(rand-gen N [k proj-X])
+    (for*/vector ([idx N])
       (let-values (((X Y) (rand-gen)))
-        X))))
-
-(define-syntax fmt-n
-    (syntax-rules ()
-        ((_ x prec mwidth)
-            (~a (~r x #:precision '(= prec)) #:width mwidth #:align 'right))))
+        (k X Y)))))
 
 (define get-10th
     (lambda(samples [delta 0.1])
@@ -68,9 +77,9 @@
                 (quantile (min (* k delta) 1.0) < samples)))))
 
 (define print-10th
-  (lambda(samples [delta 0.1])
-    (let ((q (get-10th samples delta)))
-      (printf "Quantiles delta ~a ~%" (fmt-n delta 3 6))
+  (lambda(samples [delta 0.1] [q_ '()])
+    (let ((q (if (null? q_) (get-10th samples delta) q_)))
+      (printf "quantiles delta ~a ~%" (fmt-n delta 3 6))
       (letrec ((iloop
                 (lambda(p k)
                   (when (<= p 1.0)
@@ -101,19 +110,19 @@
             (plot (discrete-histogram (iloop 0 0 '()) )))))
 
 
-    ;; (plot (discrete-histogram (list #(A 1) #(B 2) #(B 3) ...
+    ;; (plot (discrete-histogram (list #(a 1) #(b 2) #(b 3) ...
 (define stats-of-rand
   (lambda(name rand-f N)
-    (let* ((samples (vector-of-random rand-f N))
+    (let* ((samples (vector-of-random rand-f N proj-X))
            (delta 0.1)
            (median (median < samples))
            (avg (mean samples))
            (dev (stddev samples))
            (min (quantile 0 < samples))
-           (max (quantile 1 < samples)))
+           (max (quantile 1 < samples))
+           )
       (printf "~a: [~a, ~a] med, avg: ~a, ~a dev~a~%"
               (~a name        #:width 20)
-              ;; (~a (~r (- pi) #:precision 2) #:min-width 10 #:align 'right)
               (fmt-n min         2 6)
               (fmt-n max         2 6)
               (fmt-n median      2 6)
@@ -123,11 +132,46 @@
         (plot-new-window? #t)
         (plot-title name)
         (plot-q (vector->list samples) q delta)))))
+(define safe-inv
+  (lambda(x bad)
+    (if (= 0 x)
+      bad
+      (/ 1.0 x))))
 
+(define get-delta-q
+  (lambda(q [delta 0.1])
+    (let ((len (vector-length q)))
+      (letrec ((iloop
+                (lambda (k acc)
+                  ;; k must be > 0
+                  (if (= k (- len 1))
+                      (reverse acc)
+                      (iloop (+ k 1)
+                        (let ((d (- (vector-ref q k) (vector-ref q (- k 1)))))
+                             (cons (vector (* delta k) (safe-inv d 1)) acc)))))))
+        (iloop 1 '())))))
 
+(define stats-of-rand-k
+  (lambda(name rand-f N [k proj-X])
+    (let* ((samples (vector-of-random rand-f N k))
+           (delta 0.02)
+           (q (get-10th samples delta))
+           (dq (get-delta-q q delta))
+           )
+      ; (print-10th samples delta q)
+      ; (printf "---\n- ~a\n" dq)
+      (plot-new-window? #t)
+      (plot-title name)
+      (plot (lines dq
+                      #:marker 'fullcircle1
+                      #:color "blue"
+                      #:width 2)
+        #:x-label "p(X)"
+        #:y-min 0  #:y-label "1/dX")
+      )))
 
-(let ((N 15000))
-  (stats-of-rand "multi-rand"         multi-rand      N)
-  (stats-of-rand "box-muller-rand"    box-muller-rand N)
-  (stats-of-rand "Marsaglia-rand"     Marsaglia-rand  N)
+(let ((N 55000))
+  (stats-of-rand-k "multi-rand"         multi-rand      N proj-X)
+  (stats-of-rand-k "box-muller-rand"    box-muller-rand N proj-X)
+  (stats-of-rand-k "Marsaglia-rand"     Marsaglia-rand  N proj-X)
 )
