@@ -3,7 +3,6 @@
 (require sketching)
 
 (provide display-all
-         random-integer
          number->int
          with-pixels
          get-scale-factor
@@ -18,10 +17,6 @@
 (define-syntax number->int
   (syntax-rules ()
     ((_ x) (inexact->exact (floor x)))))
-
-(define-syntax random-integer
-    (syntax-rules ()
-        ((_ max-value) (number->int (random max-value)))))
 
 #|
     Some macros to help drawing
