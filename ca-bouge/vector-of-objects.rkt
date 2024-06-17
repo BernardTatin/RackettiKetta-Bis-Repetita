@@ -3,8 +3,8 @@
 (require "../libs/draw-utils.rkt")
 (require "../libs/randomness.rkt")
 
-; (define RND rand-bm-ivl)
-(define RND random)
+(define RND rand-bm-ivl)
+; (define RND random)
 
 (define-syntax random-integer
     (syntax-rules ()
@@ -64,28 +64,7 @@
       (:= x nx))
     (let-values (((n-dir ny) (move y y-dir height)))
       (:= y-dir n-dir)
-      (:= y ny))
-    ; (let* ((n-speed (* (get-r-factor 0.8 1.2) speed x-dir))
-    ;        (nx (+ x n-speed)))
-    ;   (cond
-    ;     [(<= nx sq-unit)
-    ;       (:= x-dir  1)
-    ;       (:= x (max sq-unit (+ x (abs n-speed))))]
-    ;     [(>= nx  (- width sq-unit))
-    ;       (:= x-dir -1)
-    ;       (:= x (min (- width sq-unit) (- x (abs n-speed))))]
-    ;     [else (:= x nx)]))
-    ; (let* ((n-speed (* (get-r-factor 0.8 1.2) speed y-dir))
-    ;        (ny (+ y n-speed)))
-    ;   (cond
-    ;     [(<= ny sq-unit)
-    ;       (:= y-dir  1)
-    ;       (:= y (max sq-unit (+ y (abs n-speed))))]
-    ;     [(>= ny (- height sq-unit))
-    ;       (:= y-dir -1)
-    ;       (:= y (min (- height sq-unit) (- y (abs n-speed))))]
-    ;     [else (:= y ny)]))
-        )
+      (:= y ny)))
 
 
   (define/public (draw)
