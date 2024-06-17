@@ -31,24 +31,21 @@
             ;; from [-4, 4] to [0, 1]
             ;; 0 + (x - -4) (1 - 0) / (4 - -4)
             ;; (x + 4) / 8
-            (values (/ (+ x 4) 8) (/ (+ y 4) 8)))))
+            (values (* (+ x 4) 1/8) (* (+ y 4) 1/8)))))
 
-(define rand-bm-ivl-0
-    (lambda([from 0.0] [to 1.0])
-        (let ((r (rand-1 rand-bm)))
-            (cond
-                ((and (= 0.0 from) (= 1.0 to)) r)
-                (else
-                    ;; from [0.0, 1.0]to [from, to]
-                    ;; from + (to - from) (r - 0) / (1 - 0)
-                    ;; from + r(to -from)
-                    (+ from (* r (- to from))))))))
+;; return a value in [0, 1]
+(define box-muller-rand-1
+  (lambda()
+    (let* ((u (log (random)))
+           (v (* 2 pi (random)))
+           (r (* (sqrt (* -2 u)) (cos v))))
+          (* (+ r 4) 1/8))))
 
 (define rand-bm-ivl
   (case-lambda
-    [()         (rand-1 rand-bm)]
-    [(to)       (* to (rand-1 rand-bm))]
-    [(from to)  (+ from (* (rand-1 rand-bm) (- to from)))]))
+    [()         (box-muller-rand-1)]
+    [(to)       (* to (box-muller-rand-1))]
+    [(from to)  (+ from (* (box-muller-rand-1) (- to from)))]))
 
 (define Marsaglia-rand
   (lambda()
