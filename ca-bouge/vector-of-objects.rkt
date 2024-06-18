@@ -5,12 +5,7 @@
 (require "../libs/randomness.rkt")
 (require "../libs/cl-counters.rkt")
 
-; (define RND rand-bm-ivl)
-(define RND random)
-
-(define-syntax random-integer
-  (syntax-rules ()
-    ((_ max-value) (number->int (RND max-value)))))
+(require "particles-lib.rkt")
 
 ;; from https://github.com/soegaard/sketching/blob/main/sketching-doc/sketching-doc/manual-examples/basics/vectors/vector-of-objects.rkt
 ;; but with more random
@@ -20,26 +15,7 @@
 
 
 
-(define bl-colors (vector-immutable "Wheat" "Yellow" "#ff3030" "Green" "#1e90ff"))
-(define bl-colors-len (vector*-length bl-colors))
-(define get-rand-color
-  (lambda ()
-    (vector-ref bl-colors (random-integer bl-colors-len))))
 
-(define-syntax get-r-factor
-  (syntax-rules ()
-    ((_ from to) (RND from to))))
-
-(define-syntax get-r-factor-f
-  (syntax-rules ()
-    ((_ from to)
-     (let ((val (RND from to))
-           (val-sign (RND -1.0 1.0)))
-       (if (< val-sign 0)
-           (- val)
-           val)))))
-
-(define sq-unit 15)
 (define-syntax move-p
   (syntax-rules ()
     ((_ p p-dir speed pmax)
@@ -56,8 +32,6 @@
           (:= p np)])))))
 
 
-(define min-blob-dist 12)
-(define Blob-ID (cl-count 0))
 ; Demonstrates how to create a vector of objects.
 (class Blob Object
   ; "Constructor"
@@ -109,18 +83,7 @@
 
 ;;; ---------------
 
-(define unit  40)
 (define blobs (vector))
-
-(define get-color
-  (lambda(x cut-x y cut-y)
-    (cond
-      [(< x cut-x)
-       (if (< y cut-y)
-           "#ff3030"
-           "Wheat")]
-      [(< y cut-y) "#1e90ff"]
-      [else "#1eff90"])))
 
 (define create-blobs
   (lambda(width height)
