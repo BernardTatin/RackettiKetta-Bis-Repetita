@@ -27,7 +27,7 @@
           (:= p (max sq-unit (+ p (abs n-speed))))]
          [(>= np  (- pmax sq-unit))
           (:= p-dir -1)
-          (:= p (min (- pmax sq-unit) (+ p (abs n-speed))))]
+          (:= p (min (- pmax sq-unit) (- p (abs n-speed))))]
          [else
           (:= p np)])))))
 
@@ -130,7 +130,7 @@
   (line (* 1/2 width) 0 (* 1/2 width) height)
   (line 0 (* 1/2 height) width (* 1/2 height))
   (no-stroke)
-  (search-colide)
+  ; (search-colide)
   (for ([blob blobs])
     (blob.update)
     (blob.draw)))

@@ -38,3 +38,7 @@ Elles s'occupent des collisions.
 ## le code commun aux vecteurs et aux fermetures
 
 Ce code est placé dans `particles-lib.rkt`.
+
+## premiers tests
+
+Sans la gestion des collisions, on est à 63/64 fps avec les objets et à 75/76 avec les fermetures.
