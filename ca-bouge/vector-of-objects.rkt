@@ -42,7 +42,7 @@
 (define sq-unit 15)
 (define-syntax move-p
   (syntax-rules ()
-    ((_ p p-dir speed pmax boom)
+    ((_ p p-dir speed pmax)
      (let* ((n-speed (* (get-r-factor 0.8 1.2) speed p-dir))
             (np (+ p n-speed)))
        (cond
@@ -53,8 +53,6 @@
           (:= p-dir -1)
           (:= p (min (- pmax sq-unit) (+ p (abs n-speed))))]
          [else
-          ; (unless (not boom)
-          ;   (:= p-dir (- p-dir)))
           (:= p np)])))))
 
 
@@ -67,7 +65,6 @@
               [y        0]
               [x-dir    1]
               [y-dir    1]
-              [boom     #f]
               [ID       (Blob-ID)]
               [ex       (RND 6 12)]
               [ey       (RND 6 12)]
@@ -77,13 +74,8 @@
 
   ; Methods
   (define/public (update)
-    (move-p x x-dir speed width  boom)
-    (move-p y y-dir speed height boom)
-    (unless (not boom)
-      (reset-boom)
-      ; provoque une erreur
-      ; (boom.reset-boom)
-      ))
+    (move-p x x-dir speed width)
+    (move-p y y-dir speed height))
 
   (define/public (on-collision bl)
     (let ((bl-xd bl.x-dir)
@@ -93,12 +85,7 @@
       (:= x-dir bl-xd)
       (:= y-dir bl-yd)
       (:= bl.x-dir me-xd)
-      (:= bl.y-dir me-yd)
-
-      (:= boom bl)))
-
-  (define/public (reset-boom)
-    (:= boom #f))
+      (:= bl.y-dir me-yd)))
 
   (define/public (draw)
     (fill bl-color)
