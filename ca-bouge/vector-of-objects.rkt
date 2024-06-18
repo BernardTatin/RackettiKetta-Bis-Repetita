@@ -130,7 +130,7 @@
   (line (* 1/2 width) 0 (* 1/2 width) height)
   (line 0 (* 1/2 height) width (* 1/2 height))
   (no-stroke)
-  ; (search-colide)
+  (search-colide)
   (for ([blob blobs])
     (blob.update)
     (blob.draw)))

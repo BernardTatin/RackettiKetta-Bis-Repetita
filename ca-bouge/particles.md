@@ -12,7 +12,7 @@ Il va être difficile de s'organiser autrement.
 - un identificateur unique: `ID`, pour différencier les particules entres elles,
 - la position: `x` et `y`,
 - la direction: `x-dir` et `y-dir`,
-- la vitesse: `speed`,
+- la vitesse: `speed`, ***doit être POSITIVE***!
 - la couleur: `bl-color`,
 - la forme de l'ellipse: `ex` et `ey`.
 
@@ -41,4 +41,16 @@ Ce code est placé dans `particles-lib.rkt`.
 
 ## premiers tests
 
-Sans la gestion des collisions, on est à 63/64 fps avec les objets et à 75/76 avec les fermetures.
+### sans collisions
+
+Sans la gestion des collisions, on est à 63/64 fps avec les objets et à 75/76 avec les fermetures. Lorsqu'on place la procédure de dessin dans la fermeture, on passe à 73/74 fps, mais ça mérite peut-être plus de tests.
+
+Le gain ne semble pas extraordinaire mais l'exercice est enrichissant, continuons.
+
+### avec les collisions
+
+Les objets tournent à 39/40 fps tandis que les fermetures tournent à 69/70 fps. Ici, le gain est très net.
+
+### concluons
+
+Il y a des nuances dans le traitement des deux cas. En particulier, la fonction `on-collision` (je sais, le nom est nul) est une méthode publique de l'objet alors que c'est une fonction externe à la fermeture.

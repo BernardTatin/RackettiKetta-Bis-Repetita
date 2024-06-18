@@ -16,7 +16,12 @@
           (ex               (RND 6 12))
           (ey               (RND 6 12))
           (speed            (get-r-factor 0.8 1.2)))
-      (letrec ((the-blob
+      (letrec ((draw
+                (lambda()
+                  (fill bl-color)
+                  (ellipse x y ex ey)))
+
+               (the-blob
                 (case-lambda
                   [(field)
                    (case field
@@ -26,6 +31,7 @@
                      [(ID)        ID]
                      [(speed)     speed]
                      [(bl-color)  bl-color]
+                     [(draw)      (draw)]
                      [else         #f])]
                   [(field value)
                    (case field
@@ -67,6 +73,33 @@
           (bl 'dir nxd nyd))))))
 
 
+(define blob-near?
+  (lambda(bl1 bl2)
+    (let-values (((x1 y1) (bl1 'pos))
+                 ((ex1 ey1) (bl1 'shape))
+                 ((x2 y2) (bl2 'pos))
+                 ((ex2 ey2) (bl2 'shape)))
+
+      (and (not (= (bl1 'ID) (bl2 'ID)))
+           (< (abs (- x1 x2)) (min ex1 ex2))
+           (< (abs (- y1 y2)) (min ey1 ey2))))))
+
+(define on-collision
+  (lambda(bl1 bl2)
+    (let-values (((xd1 yd1) (bl1 'dir))
+                 ((xd2 yd2) (bl2 'dir)))
+      (bl1 'dir xd2 yd2)
+      (bl2 'dir xd1 yd1))))
+
+(define search-colide   ;; 46/47 fps
+  (lambda()
+    (let ((vl (vector-length blobs)))
+      (for ([i (in-range 0 (- vl 1))])
+        (let ((bl1 (vector-ref blobs i)))
+          (for ([j (in-range (+ 1 i) vl)])
+            (let ((bl2 (vector-ref blobs j)))
+              (when (blob-near? bl1 bl2)
+                (on-collision bl1 bl2)))))))))
 
 (define draw-blob
   (lambda(bl)
@@ -120,7 +153,7 @@
   (line (* 1/2 width) 0 (* 1/2 width) height)
   (line 0 (* 1/2 height) width (* 1/2 height))
   (no-stroke)
-;   (search-colide)
+  (search-colide)
   (for ([blob blobs])
     (move-blob blob)
     (when (> move-count 0)
