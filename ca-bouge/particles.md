@@ -1,6 +1,6 @@
 # les particules qui bougent et s'entrechoquent
 
-Je suis parti de cet exemple: [Vector of objects](https://github.com/soegaard/sketching/blob/main/sketching-doc/sketching-doc/manual-examples/basics/vectors/vector-of-objects.rkt) qui montre comment utiliser un vecteur d'objet avec *Sketching*. J'ai d'abord rajouté plus de hasard dans le movement des particules puis je les ai libérées de leur peti carré dans lequel elles étaient engoncés. Pour finir j'ai géré les collisions. Et tout cela avec des objets.
+Je suis parti de cet exemple: [Vector of objects](https://github.com/soegaard/sketching/blob/main/sketching-doc/sketching-doc/manual-examples/basics/vectors/vector-of-objects.rkt) qui montre comment utiliser un vecteur d'objet avec *Sketching*. J'ai d'abord rajouté plus de hasard dans le movement des particules puis je les ai libérées de leur petit carré dans lequel elles étaient engoncées. Pour finir j'ai géré les collisions. Et tout cela avec les objets originels de l'exemple.
 
 Le résultat est plus ou moins conforme à mes attentes mais un peu lent à mon goût. Je vais remplacer ces objets par des fermetures, méthode qui prouvat son efficacité avec des compteurs quant aux performances.
 
