@@ -1,9 +1,6 @@
 #lang sketching
 
-(require "../libs/timing.rkt")
 (require "../libs/draw-utils.rkt")
-(require "../libs/randomness.rkt")
-(require "../libs/cl-counters.rkt")
 
 (require "particles-lib.rkt")
 
@@ -16,12 +13,7 @@
           (ex               (RND 6 12))
           (ey               (RND 6 12))
           (speed            (get-r-factor 0.8 1.2)))
-      (letrec ((draw
-                (lambda()
-                  (fill bl-color)
-                  (ellipse x y ex ey)))
-
-               (the-blob
+      (letrec ((the-blob
                 (case-lambda
                   [(field)
                    (case field
@@ -31,12 +23,6 @@
                      [(ID)        ID]
                      [(speed)     speed]
                      [(bl-color)  bl-color]
-                     [(draw)      (draw)]
-                     [else         #f])]
-                  [(field value)
-                   (case field
-                     [(speed)     (:= speed value)]
-                     [(bl-color)  (:= bl-color value)]
                      [else         #f])]
                   [(field v1 v2)
                    (case field
@@ -53,11 +39,9 @@
             (np (+ p n-speed)))
        (cond
          [(< np sq-unit)
-        ;   (display-all "Dir -> " p-dir ", " 1 "\n")
-          (values 1 (max sq-unit (+ p a-speed)))]
+          (values 1 (+ p a-speed))]
          [(> np  (- pmax sq-unit))
-        ;   (display-all "Dir -> " p-dir ", " -1 "\n")
-          (values -1  (min (- pmax sq-unit) (- p a-speed)))]
+          (values -1  (- p a-speed))]
          [else
           (values p-dir np)])))))
 
@@ -68,7 +52,6 @@
       (let ((speed (bl 'speed)))
         (let-values (((nxd nx) (move-p x x-dir speed width))
                      ((nyd ny) (move-p y y-dir speed height)))
-          (bl 'dir nxd nyd)
           (bl 'pos  nx  ny)
           (bl 'dir nxd nyd))))))
 
@@ -104,7 +87,7 @@
 (define draw-blob
   (lambda(bl)
     (let ((color (bl 'bl-color)))
-      (let-values (((x y) (bl 'pos))
+      (let-values (((x   y) (bl 'pos))
                    ((ex ey) (bl 'shape)))
         (fill color)
         (ellipse x y ex ey)))))
@@ -148,15 +131,8 @@
          (:= now (current-inexact-milliseconds))
          (:= frames 0)))])
   (background "#404040")
-  (stroke-weight 4)
-  (stroke "#aaaa44")
-  (line (* 1/2 width) 0 (* 1/2 width) height)
-  (line 0 (* 1/2 height) width (* 1/2 height))
-  (no-stroke)
   (search-colide)
   (for ([blob blobs])
     (move-blob blob)
-    (when (> move-count 0)
-      (-- move-count))
     (draw-blob blob)))
 

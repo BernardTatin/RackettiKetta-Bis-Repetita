@@ -51,6 +51,18 @@ Le gain ne semble pas extraordinaire mais l'exercice est enrichissant, continuon
 
 Les objets tournent à 39/40 fps tandis que les fermetures tournent à 69/70 fps. Ici, le gain est très net.
 
-### concluons
+### NOTE IMPORTANTE
+
+Avec les fermetures, le même test se fait parfois en 63 fps au lieu de 70 fps.
+
+## concluons ?
 
 Il y a des nuances dans le traitement des deux cas. En particulier, la fonction `on-collision` (je sais, le nom est nul) est une méthode publique de l'objet alors que c'est une fonction externe à la fermeture.
+
+Pour être honnête, il faudrait faire une version avec une structure. Comme je trouve ça moins drôle que les fermetures, je remet ça à plus tard.
+
+## les avantages de mes fermetures
+
+Tout d'abord, j'ai une animation fluide à 30 fps en plein écran comtre 4 fps.
+
+Ensuite, sans me prendre la tête, j'ai un composant avec des champs en lecture seule. J'aurais pu obtenir ça avec les objets mais certainement avec (beaucoup) plus de code. Et je ne suis pas certain que ça fonctionne facilment avec les structures.
