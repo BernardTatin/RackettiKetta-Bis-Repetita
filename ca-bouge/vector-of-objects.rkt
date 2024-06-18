@@ -26,11 +26,11 @@
   (lambda ()
     (vector-ref bl-colors (random-integer bl-colors-len))))
 
-(define-syntax get-r-factor-f
+(define-syntax get-r-factor
   (syntax-rules ()
     ((_ from to) (RND from to))))
 
-(define-syntax get-r-factor
+(define-syntax get-r-factor-f
   (syntax-rules ()
     ((_ from to)
      (let ((val (RND from to))
@@ -53,8 +53,8 @@
           (:= p-dir -1)
           (:= p (min (- pmax sq-unit) (+ p (abs n-speed))))]
          [else
-          (unless (not boom)
-            (:= p-dir (- p-dir)))
+          ; (unless (not boom)
+          ;   (:= p-dir (- p-dir)))
           (:= p np)])))))
 
 
@@ -86,7 +86,16 @@
       ))
 
   (define/public (on-collision bl)
-    (:= boom bl))
+    (let ((bl-xd bl.x-dir)
+          (bl-yd bl.y-dir)
+          (me-xd x-dir)
+          (me-yd y-dir))
+      (:= x-dir bl-xd)
+      (:= y-dir bl-yd)
+      (:= bl.x-dir me-xd)
+      (:= bl.y-dir me-yd)
+
+      (:= boom bl)))
 
   (define/public (reset-boom)
     (:= boom #f))
@@ -98,15 +107,19 @@
 (define blob-near?
   (lambda(bl1 bl2)
     (and (not (= bl1.ID bl2.ID))
-         (< (abs (- bl1.x bl2.x)) min-blob-dist)
-         (< (abs (- bl1.y bl2.y)) min-blob-dist))))
+         (< (abs (- bl1.x bl2.x)) (min bl1.ex bl2.ex))
+         (< (abs (- bl1.y bl2.y)) (min bl1.ey bl2.ey)))))
 
-(define search-colide
+(define search-colide   ;; 46/47 fps
   (lambda()
-    (for ([bl1 blobs])
-      (for ([bl2 blobs])
-        (when (blob-near? bl1 bl2)
-          (bl1.on-collision bl2))))))
+    (let ((vl (vector-length blobs)))
+      (for ([i (in-range 0 (- vl 1))])
+        (let ((bl1 (vector-ref blobs i)))
+          (for ([j (in-range (+ 1 i) vl)])
+            (let ((bl2 (vector-ref blobs j)))
+              (when (blob-near? bl1 bl2)
+                (bl1.on-collision bl2)))))))))
+
 ;;; ---------------
 
 (define unit  40)
@@ -118,7 +131,7 @@
       [(< x cut-x)
        (if (< y cut-y)
            "#ff3030"
-           "#8090ff")]
+           "Wheat")]
       [(< y cut-y) "#1e90ff"]
       [else "#1eff90"])))
 
@@ -141,7 +154,6 @@
   (size 640 800)
   (frame-rate 110)
   (no-stroke)
-  ; (color-mode 'hsb)
   (create-blobs width height))
 
 (define (on-resize width height)
@@ -162,7 +174,6 @@
          (display-all "fps: " (/ (* 1000 frames)  dt) "\n")
          (:= now (current-inexact-milliseconds))
          (:= frames 0)))])
-
   (background "#404040")
   (stroke-weight 4)
   (stroke "#aaaa44")
@@ -171,9 +182,5 @@
   (no-stroke)
   (search-colide)
   (for ([blob blobs])
-    (blob.update))
-  ; (for ([i (in-range 10)])
-  ;   (for ([blob blobs])
-  ;     (blob.update)))
-  (for ([blob blobs])
+    (blob.update)
     (blob.draw)))
