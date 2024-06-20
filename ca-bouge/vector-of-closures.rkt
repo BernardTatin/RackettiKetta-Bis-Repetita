@@ -114,22 +114,10 @@
 (define (on-resize width height)
   (create-blobs width height))
 
-(define now #f)
-(define frames 0)
 
 (define move-count -1)
 (define (draw)
-  (cond
-    [(not now)
-     (:= now (current-inexact-milliseconds))
-     (:= frames 0)]
-    [else
-     (let ((dt (- (current-inexact-milliseconds) now)))
-       (++ frames)
-       (when (> dt 10000.0)
-         (display-all "fps: " (/ (* 1000 frames)  dt) "\n")
-         (:= now (current-inexact-milliseconds))
-         (:= frames 0)))])
+  (the-frame-chrono)
   (background "#404040")
   (search-colide)
   (for ([blob blobs])
