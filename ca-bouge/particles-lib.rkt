@@ -1,7 +1,7 @@
 #lang racket
 
 (require sketching)
-(require "../libs/timing.rkt")
+
 (require "../libs/draw-utils.rkt")
 (require "../libs/randomness.rkt")
 (require "../libs/cl-counters.rkt")
@@ -16,15 +16,16 @@
          get-color
          get-r-factor
          get-r-factor-f
-         the-frame-chrono)
+         the-frame-chrono
+         on-setup)
 
 (define min-blob-dist 12)
 (define Blob-ID (cl-count 0))
 (define sq-unit 15)
 (define unit  40)
 
-; (define RND rand-bm-ivl)
-(define RND random)
+ (define RND rand-bm-ivl)
+;(define RND random)
 
 (define-syntax random-integer
   (syntax-rules ()
@@ -67,6 +68,7 @@
       (let ((ichrono
              (lambda()
                (let ((dt (- (current-inexact-milliseconds) now)))
+                 (displayln "ichrono")
                  (if (< dt limit)
                      (on-read)
                      (begin
@@ -74,7 +76,9 @@
                        (:= now (current-inexact-milliseconds))))))))
         ichrono))))
 
-(define frame-chrono
+
+(define frames 0)
+(define frame-chrono-0
   (lambda(limit)
     (chrono limit
             (lambda()
@@ -83,6 +87,27 @@
               (display-all "fps: " (/ (* 1000 frames)  dt) "\n")
               (:= frames 0)))))
 
+(define frame-chrono
+  (lambda(limit)
+    (let* ((frames 0)
+           (on-read
+            (lambda()
+              (display-all "---- frm: " frames  "\n")
+              (++ frames)))
+           (on-tick
+            (lambda(dt)
+              (display-all "---- fps: " (/ (* 1000 frames)  dt) "\n")
+              (:= frames 0))))
+      (let ((run-chrono
+             (lambda()
+               (displayln "run-chrono\n")
+               (chrono limit on-read on-tick))))
+        run-chrono))))
+
 (define the-frame-chrono (frame-chrono 5000))
 
-(define frames 0)
+(define on-setup
+  (lambda(width height)
+    (size width height)
+    (frame-rate 110)
+    (no-stroke) ))

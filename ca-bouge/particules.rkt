@@ -137,15 +137,11 @@
                     (blob-object nx ny (get-color nx cut-x ny cut-y))))))))
 
 (define (setup)
-  (size 640 800)
-  (frame-rate 110)
-  (no-stroke)
+  (on-setup 640 800)
   (create-blobs width height))
 
 (define (on-resize width height)
   (create-blobs width height))
-
-(define move-count -1)
 
 (define (draw)
   (the-frame-chrono)
