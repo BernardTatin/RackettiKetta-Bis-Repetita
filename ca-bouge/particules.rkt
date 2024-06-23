@@ -148,6 +148,8 @@
   (background "#404040")
   (search-colide)
   (for ([blob blobs])
-    (move-blob blob)
+    (move-blob blob))
+  (for ([blob blobs])
+    ; (move-blob blob)
     (draw-blob blob)))
 

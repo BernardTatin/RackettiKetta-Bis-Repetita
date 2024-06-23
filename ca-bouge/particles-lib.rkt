@@ -68,7 +68,6 @@
       (let ((ichrono
              (lambda()
                (let ((dt (- (current-inexact-milliseconds) now)))
-                 (displayln "ichrono")
                  (if (< dt limit)
                      (on-read)
                      (begin
@@ -92,17 +91,12 @@
     (let* ((frames 0)
            (on-read
             (lambda()
-              (display-all "---- frm: " frames  "\n")
               (++ frames)))
            (on-tick
             (lambda(dt)
               (display-all "---- fps: " (/ (* 1000 frames)  dt) "\n")
               (:= frames 0))))
-      (let ((run-chrono
-             (lambda()
-               (displayln "run-chrono\n")
-               (chrono limit on-read on-tick))))
-        run-chrono))))
+      (chrono limit on-read on-tick))))
 
 (define the-frame-chrono (frame-chrono 5000))
 
