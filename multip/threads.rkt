@@ -1,5 +1,9 @@
 #lang racket
 
+;;======================================================================
+;; all thrads run on the SAME processor !!!!
+;;======================================================================
+
 (define end #f)
 (define now (current-milliseconds))
 
