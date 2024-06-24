@@ -23,7 +23,8 @@
   (printf "put OK\n")
   (place-channel-get p))
 
-(define (main)
+
+(define (run)
   (let ((p (place ch
                   (let ((l (place-channel-get ch)))
                     (printf "received ~a~%" l)
@@ -35,4 +36,5 @@
     (let ((l (place-channel-get p)))
       (printf "the list: ~a~%" l))))
 
-; (main)
+(define (main)
+  (run))

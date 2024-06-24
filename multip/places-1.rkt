@@ -3,6 +3,7 @@
 ;;======================================================================
 ;; it works with the following command line:
 ;; Racket.exe -tm .\places-1.rkt
+;; place is only syntactic sugar above dynamic-place
 ;;======================================================================
 (provide main)
 
@@ -23,7 +24,7 @@
   (printf "put OK\n")
   (place-channel-get p))
 
-(define (main)
+(define (run)
   (let ((p (place ch
                   (let ((now (current-milliseconds))
                         (N (place-channel-get ch)))
@@ -39,4 +40,6 @@
     (let ((l (place-channel-get p)))
       (printf "the result ~a~%" l))))
 
-; (main)
+
+(define (main)
+  (run))
