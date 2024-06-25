@@ -47,7 +47,8 @@
     (make-worker-place id task-in done-out)))
 
 ;; Put all tasks in the shared task channel.
-(define TASKS #e1e2)
+; (define TASKS #e1e2)
+(define TASKS 50)
 (for ([n (in-range TASKS)])
   (place-channel-put task-out n))
 (printf "finished queueing tasks\n")
